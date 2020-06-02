@@ -4,4 +4,4 @@ go: "1.13"
 script:
   - make test
   - make
-  - _out/attest -h
+  - _bin/attest -h
