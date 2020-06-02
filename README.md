@@ -1,8 +1,11 @@
 # attest: Local test tool for competitive coder
 
+[![Release][release-badge]][release-url]
 [![Build Status][travis-badge]][travis-url]
 [![MIT License][license-badge]][license-url]
 
+[release-badge]: https://img.shields.io/github/release/snsinfu/attest.svg
+[release-url]: https://github.com/snsinfu/attest/releases
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://raw.githubusercontent.com/snsinfu/attest/master/LICENSE.txt
 [travis-badge]: https://travis-ci.org/snsinfu/attest.svg?branch=master

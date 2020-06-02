@@ -5,3 +5,15 @@ script:
   - make test
   - make
   - _bin/attest -h
+  - GOARCH=amd64 GOOS=linux   make && mv _bin/attest _bin/attest-linux
+  - GOARCH=amd64 GOOS=freebsd make && mv _bin/attest _bin/attest-freebsd
+  - GOARCH=amd64 GOOS=darwin  make && mv _bin/attest _bin/attest-mac
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  skip_cleanup: true
+  file: _bin/attest-*
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ v[0-9].*
