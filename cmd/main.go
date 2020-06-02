@@ -75,8 +75,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	if timeoutSec <= 0 {
-		return fmt.Errorf("timeout (-t) cannot be zero or negative")
+	if timeoutSec < 0 {
+		return fmt.Errorf("timeout (-t) cannot be negative")
 	}
 
 	config := attest.Config{
