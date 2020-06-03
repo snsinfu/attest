@@ -15,10 +15,17 @@ solving competitive programming problems.
 [travis-badge]: https://api.travis-ci.org/snsinfu/attest.svg?branch=master
 [travis-url]: https://travis-ci.org/snsinfu/attest
 
+- [Install](#install)
 - [Usage](#usage)
 - [Options](#options)
 - [Testing](#testing)
 - [License](#license)
+
+
+## Install
+
+Download `attest` binary from the [release page][release-url]. Pre-compiled
+static executables are listed in the **Assets** box.
 
 
 ## Usage
