@@ -1,7 +1,9 @@
 package attest
 
 import (
+	"fmt"
 	"io/ioutil"
+	"path"
 	"strings"
 	"syscall"
 	"time"
@@ -24,6 +26,8 @@ const (
 	testTimeout
 	testError
 )
+
+const caseDelim = "\n---\n"
 
 // test runs a command and test its behavior against given test case.
 func test(argv []string, tcase testCase) (testStatus, error) {
@@ -84,4 +88,35 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 	}
 
 	return 0, nil
+}
+
+// makeTestCases interprets config and assembles test case objects.
+func makeTestCases(config Config) ([]testCase, error) {
+	testCases := []testCase{}
+
+	for _, filename := range config.Tests {
+		data, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return nil, err
+		}
+
+		text := string(data)
+		pos := strings.Index(text, caseDelim)
+		if pos == -1 {
+			return nil, fmt.Errorf(
+				"test file %s does not contain input and output delimited by ---", filename,
+			)
+		}
+		inputEnd := pos + 1
+		outputStart := pos + len(caseDelim)
+
+		testCases = append(testCases, testCase{
+			Name:    path.Base(filename),
+			Input:   text[:inputEnd],
+			Output:  text[outputStart:],
+			Timeout: config.Timeout,
+		})
+	}
+
+	return testCases, nil
 }
