@@ -16,6 +16,7 @@ type Config struct {
 	Tests   []string
 	MaxJobs int
 	Timeout time.Duration
+	Verbose bool
 }
 
 // Run runs command and tests its output against expected outcomes recorded in

@@ -18,6 +18,7 @@ options:
   -d <tests>    Directory containing test files [default: tests]
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
+  -v            Display more information
   -h            Show this message and exit
 
 attest loads test files (*.txt) from test directory and examines command
@@ -79,11 +80,17 @@ func run() error {
 		return fmt.Errorf("timeout (-t) cannot be negative")
 	}
 
+	verbose, err := opts.Bool("-v")
+	if err != nil {
+		return err
+	}
+
 	config := attest.Config{
 		Command: opts["<command>"].([]string),
 		Tests:   tests,
 		MaxJobs: maxJobs,
 		Timeout: time.Duration(timeoutSec) * time.Second,
+		Verbose: verbose,
 	}
 
 	rc, err := attest.Run(config)
