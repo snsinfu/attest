@@ -8,50 +8,79 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gosuri/uilive"
 	"github.com/snsinfu/attest/colors"
+	"github.com/snsinfu/attest/flyterm"
+	"github.com/snsinfu/attest/periodic"
 )
 
 const caseDelim = "\n---\n"
 var spinner = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 
-
-type update struct {
-	Row  int
-	Text string
-}
-
-func task(row int, updates chan<- update, argv []string, tcase testCase) {
-
-	end := make(chan bool)
-
-	go func() {
-		tick := time.Tick(time.Second / 10)
-
-		for i := 0; ; i++ {
-			updates <- update{
-				Row:  row,
-				Text: fmt.Sprintf(
-					"%s  %s",
-					colors.Yellow("RUN" + spinner[i % len(spinner)]),
-					tcase.Name,
-				),
-			}
-
-			select {
-			case <-tick:
-			case <-end:
-				return
-			}
-		}
-	}()
-
-	stat, err := test(argv, tcase)
-	end <- true
+// Run runs command and tests its output against expected outcomes recorded in
+// test files.
+func Run(config Config) (int, error) {
+	testCases, err := makeTestCases(config)
 	if err != nil {
-		return
+		return 0, err
 	}
 
+	sem := make(chan bool, config.MaxJobs)
+	wg := sync.WaitGroup{}
+	wg.Add(len(testCases))
+
+	term := flyterm.New(len(testCases), flyterm.Options{})
+	defer term.Stop()
+
+	for i := range testCases {
+		row := i
+		tc := testCases[i]
+
+		go func() {
+			term.Update(row, formatWait(tc.Name))
+
+			sem <- true
+
+			start := time.Now()
+			spin := 0
+
+			p := periodic.New(time.Second / 10, func() {
+				elapsed := time.Now().Sub(start)
+				term.Update(row, formatRun(tc.Name, elapsed, spin))
+				spin++
+			})
+			stat, _ := test(config.Command, tc)
+			p.Stop()
+
+			elapsed := time.Now().Sub(start)
+			term.Update(row, formatResult(tc.Name, elapsed, stat))
+
+			<-sem
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	return 0, nil
+}
+
+func formatWait(name string) string {
+	return fmt.Sprintf("%s  -:--  %s", colors.Gray("WAIT"), name)
+}
+
+func formatRun(name string, elapsed time.Duration, spin int) string {
+	min, sec := extractMinSec(elapsed)
+
+	return fmt.Sprintf(
+		"%s  %d:%02d  %s",
+		colors.Yellow("RUN" + spinner[spin % len(spinner)]),
+		min,
+		sec,
+		name,
+	)
+}
+
+func formatResult(name string, elapsed time.Duration, stat testStatus) string {
 	var label string
 	switch stat {
 	case testPassed:
@@ -63,87 +92,16 @@ func task(row int, updates chan<- update, argv []string, tcase testCase) {
 	case testError:
 		label = colors.Magenta("DEAD")
 	}
+	min, sec := extractMinSec(elapsed)
 
-	updates <- update{
-		Row:  row,
-		Text: fmt.Sprintf("%s  %s", label, tcase.Name),
-	}
+	return fmt.Sprintf("%s  %d:%02d  %s", label, min, sec, name)
 }
 
-
-// Run runs command and tests its output against expected outcomes recorded in
-// test files.
-func Run(config Config) (int, error) {
-	testCases, err := makeTestCases(config)
-	if err != nil {
-		return 0, err
-	}
-
-	sem := make(chan bool, config.MaxJobs)
-	updates := make(chan update, len(testCases) * 10)
-	wg := sync.WaitGroup{}
-	wg.Add(len(testCases))
-
-	for i := range testCases {
-		row := i
-		tcase := testCases[i]
-		go func() {
-			updates <- update{
-				Row:  row,
-				Text: fmt.Sprintf("%s  %s", colors.Gray("WAIT"), tcase.Name),
-			}
-
-			sem <- true
-			task(row, updates, config.Command, tcase)
-			<-sem
-
-			wg.Done()
-		}()
-	}
-
-	end := make(chan bool)
-	endOK := make(chan bool)
-
-	go func() {
-		w := uilive.New()
-		w.RefreshInterval = 1000*time.Second
-		w.Start()
-
-		rows := make([]string, len(testCases))
-
-	render:
-		for range time.Tick(100 * time.Millisecond) {
-		pump:
-			for {
-				select {
-				case up := <-updates:
-					rows[up.Row] = up.Text
-				default:
-					break pump
-				}
-			}
-
-			for _, row := range rows {
-				fmt.Fprintln(w, row)
-			}
-			w.Flush()
-
-			select {
-			case <-end:
-				break render
-			default:
-			}
-		}
-
-		w.Stop()
-		endOK <- true
-	}()
-
-	wg.Wait()
-	end <- true
-	<-endOK
-
-	return 0, nil
+func extractMinSec(d time.Duration) (int, int) {
+	sec := int(d.Seconds())
+	min := sec / 60
+	sec %= 60
+	return min, sec
 }
 
 // makeTestCases interprets config and assembles test case objects.

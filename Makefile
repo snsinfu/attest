@@ -3,6 +3,8 @@ SOURCES = \
   $(wildcard cmd/*.go) \
   $(wildcard colors/*.go) \
   $(wildcard command/*.go) \
+  $(wildcard flyterm/*.go) \
+  $(wildcard periodic/*.go)
 
 PRODUCT = _bin/attest
 CHECKPOINTS = _get.ok
