@@ -72,7 +72,8 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 		}
 	}
 
-	// Test command output against expected one. We use token-wise comparison.
+	// Test command output against expected one. We use token-wise comparison
+	// so that spacing differences do not affect the validity of the output.
 	// TODO: Correctly compare floating-point numbers.
 	observed := strings.Fields(string(stdout))
 	expected := strings.Fields(tcase.Output)

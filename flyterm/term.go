@@ -10,7 +10,11 @@ import (
 )
 
 const (
+	// uilive refreshes display extremely frequently, which casues flickering.
+	// It does not support disabling the auto-refresh feature, so we set the
+	// refresh interval very long as a workaround.
 	uiliveAutoInterval = 1000 * time.Second
+
 	defaultQueuePerRow = 10
 	defaultInterval    = time.Second / 10
 )
@@ -73,8 +77,9 @@ func (t *Term) start() {
 	for !end {
 		select {
 		case <-t.quit:
+			// Caller likely sends a last update right before calling Stop().
+			// So, we make sure all updates are processed before quitting.
 			end = true
-			break
 		case <-ticker.C:
 		}
 
