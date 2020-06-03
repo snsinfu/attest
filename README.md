@@ -12,7 +12,7 @@ solving competitive programming problems.
 [release-url]: https://github.com/snsinfu/attest/releases
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://raw.githubusercontent.com/snsinfu/attest/master/LICENSE.txt
-[travis-badge]: https://travis-ci.org/snsinfu/attest.svg?branch=master
+[travis-badge]: https://api.travis-ci.org/snsinfu/attest.svg?branch=master
 [travis-url]: https://travis-ci.org/snsinfu/attest
 
 - [Usage](#usage)
