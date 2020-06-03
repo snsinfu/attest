@@ -4,6 +4,10 @@
 [![Build Status][travis-badge]][travis-url]
 [![MIT License][license-badge]][license-url]
 
+attest is a command-line tool that tests a program for given input and expected
+output. I made this for quickly checking validity of my program locally when
+solving competitive programming problems.
+
 [release-badge]: https://img.shields.io/github/release/snsinfu/attest.svg
 [release-url]: https://github.com/snsinfu/attest/releases
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
@@ -22,7 +26,7 @@
 Create test files in `tests` directory as `*.txt` files. Test file contains
 program input and expected output delimited by "---".
 
-```
+```console
 $ ls tests
 test1.txt  test2.txt  test3.txt
 
@@ -36,14 +40,15 @@ $ cat test1.txt
 
 Run `attest ./a.out` to test your program `./a.out` against the test files:
 
-```
+```console
 $ attest ./a.out
-PASS test1.txt
-PASS test2.txt
-PASS test3.txt
+PASS  0:01  test1.txt
+PASS  0:05  test2.txt
+PASS  0:03  test3.txt
 ```
 
-The test result can be one of these:
+Each line shows test result, execution time and test filename. The test result
+can be one of these:
 
 | Result | Meaning                      |
 |--------|------------------------------|
@@ -62,6 +67,7 @@ options:
   -d <tests>    Directory containing test files [default: tests]
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
+  -v            Display more information
   -h            Show this message and exit
 ```
 
