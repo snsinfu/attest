@@ -1,6 +1,6 @@
 SOURCES = \
   $(wildcard *.go) \
-  $(wildcard cmd/*.go) \
+  $(wildcard main/*.go) \
   $(wildcard colors/*.go) \
   $(wildcard command/*.go) \
   $(wildcard flyterm/*.go) \
@@ -28,4 +28,4 @@ _get.ok:
 	@touch $@
 
 $(PRODUCT): $(SOURCES) _get.ok
-	go build -o $@ ./cmd
+	go build -o $@ ./main
