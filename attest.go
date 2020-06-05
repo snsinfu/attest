@@ -14,6 +14,7 @@ const spinnerInterval = time.Second / 10
 type Config struct {
 	Command []string
 	Tests   []string
+	Digits  int
 	MaxJobs int
 	Timeout time.Duration
 	Verbose bool

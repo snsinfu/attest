@@ -16,6 +16,7 @@ usage: attest [options] <command>...
 
 options:
   -d <tests>    Directory containing test files [default: tests]
+  -f <digits>   Test numbers for specified number of decimal places
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
   -v            Display detailed information on failed tests
@@ -61,6 +62,14 @@ func run() error {
 		return err
 	}
 
+	digits := -1
+	if opt, ok := opts["-f"]; ok && opt != nil {
+		digits, err = opts.Int("-f")
+		if err != nil {
+			return err
+		}
+	}
+
 	maxJobs, err := opts.Int("-j")
 	if err != nil {
 		return err
@@ -88,6 +97,7 @@ func run() error {
 	config := attest.Config{
 		Command: opts["<command>"].([]string),
 		Tests:   tests,
+		Digits:  digits,
 		MaxJobs: maxJobs,
 		Timeout: time.Duration(timeoutSec) * time.Second,
 		Verbose: verbose,

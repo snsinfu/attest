@@ -93,6 +93,7 @@ usage: attest [options] <command>...
 
 options:
   -d <tests>    Directory containing test files [default: tests]
+  -f <digits>   Test numbers for specified number of decimal places
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
   -v            Display detailed information on failed tests

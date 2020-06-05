@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -16,6 +17,7 @@ type testCase struct {
 	Input   string
 	Output  string
 	Timeout time.Duration
+	Digits  int
 }
 
 const caseDelim = "\n---\n"
@@ -104,7 +106,19 @@ func test(argv []string, tcase testCase) (testResult, error) {
 	}
 
 	for i := 0; i < len(observed); i++ {
-		if observed[i] != expected[i] {
+		obs := observed[i]
+		exp := expected[i]
+
+		if tcase.Digits >= 0 {
+			obsNum, err1 := strconv.ParseFloat(obs, 64)
+			expNum, err2 := strconv.ParseFloat(exp, 64)
+			if err1 == nil && err2 == nil {
+				obs = fmt.Sprintf("%.*f", tcase.Digits, obsNum)
+				exp = fmt.Sprintf("%.*f", tcase.Digits, expNum)
+			}
+		}
+
+		if obs != exp {
 			r.Outcome = testFailed
 			return r, nil
 		}
@@ -139,6 +153,7 @@ func makeTestCases(config Config) ([]testCase, error) {
 			Input:   text[:inputEnd],
 			Output:  text[outputStart:],
 			Timeout: config.Timeout,
+			Digits:  config.Digits,
 		})
 	}
 
