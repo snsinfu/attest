@@ -53,15 +53,21 @@ func run() error {
 		return err
 	}
 
+	// Load test files.
 	testsDir, err := opts.String("-d")
 	if err != nil {
 		return err
 	}
-	tests, err := filepath.Glob(filepath.Join(testsDir, testGlob))
+	testFiles, err := filepath.Glob(filepath.Join(testsDir, testGlob))
+	if err != nil {
+		return err
+	}
+	testCases, err := makeTestCases(testFiles)
 	if err != nil {
 		return err
 	}
 
+	// Set rounded floating-point comparison mode.
 	digits := -1
 	if opt, ok := opts["-f"]; ok && opt != nil {
 		digits, err = opts.Int("-f")
@@ -70,6 +76,7 @@ func run() error {
 		}
 	}
 
+	// Configure concurrency.
 	maxJobs, err := opts.Int("-j")
 	if err != nil {
 		return err
@@ -81,6 +88,7 @@ func run() error {
 		return fmt.Errorf("concurrency (-j) cannot be negative")
 	}
 
+	// Set timeout of single test run.
 	timeoutSec, err := opts.Int("-t")
 	if err != nil {
 		return err
@@ -89,18 +97,23 @@ func run() error {
 		return fmt.Errorf("timeout (-t) cannot be negative")
 	}
 
+	// Verbosity.
 	verbose, err := opts.Bool("-v")
 	if err != nil {
 		return err
 	}
 
+	// Cook test cases.
+	for i := range testCases {
+		testCases[i].Timeout = time.Duration(timeoutSec) * time.Second
+		testCases[i].Digits = digits
+	}
+
 	config := attest.Config{
-		Command: opts["<command>"].([]string),
-		Tests:   tests,
-		Digits:  digits,
-		MaxJobs: maxJobs,
-		Timeout: time.Duration(timeoutSec) * time.Second,
-		Verbose: verbose,
+		Command:   opts["<command>"].([]string),
+		TestCases: testCases,
+		MaxJobs:   maxJobs,
+		Verbose:   verbose,
 	}
 
 	rc, err := attest.Run(config)
