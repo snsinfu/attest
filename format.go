@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/snsinfu/attest/colors"
+	"github.com/snsinfu/attest/test"
 )
 
 var spinner = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
@@ -26,21 +27,21 @@ func formatRun(name string, elapsed time.Duration, spin int) string {
 	)
 }
 
-func formatLabel(outcome testOutcome) string {
+func formatLabel(outcome test.Outcome) string {
 	switch outcome {
-	case testPassed:
+	case test.TestPassed:
 		return colors.Green("PASS")
-	case testFailed:
+	case test.TestFailed:
 		return colors.Red("FAIL")
-	case testTimeout:
+	case test.TestTimeout:
 		return colors.Blue("TIME")
-	case testError:
+	case test.TestError:
 		return colors.Magenta("DEAD")
 	}
 	panic("unexpected argument")
 }
 
-func formatOutcome(name string, elapsed time.Duration, outcome testOutcome) string {
+func formatOutcome(name string, elapsed time.Duration, outcome test.Outcome) string {
 	label := formatLabel(outcome)
 	min, sec := extractMinSec(elapsed)
 	return fmt.Sprintf("%s  %d:%02d  %s", label, min, sec, name)
@@ -53,7 +54,7 @@ func extractMinSec(d time.Duration) (int, int) {
 	return min, sec
 }
 
-func formatResult(tc testCase, r testResult) string {
+func formatResult(tc test.Case, r test.Result) string {
 	label := formatLabel(r.Outcome)
 	heading := fmt.Sprintf("%s  %s\n", label, tc.Name)
 

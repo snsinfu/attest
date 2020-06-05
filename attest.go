@@ -6,6 +6,7 @@ import (
 
 	"github.com/snsinfu/attest/flyterm"
 	"github.com/snsinfu/attest/periodic"
+	"github.com/snsinfu/attest/test"
 )
 
 const spinnerInterval = time.Second / 10
@@ -28,15 +29,14 @@ func Run(config Config) (int, error) {
 		return 0, err
 	}
 
-	sem := make(chan bool, config.MaxJobs)
-
 	term := flyterm.New(len(testCases), flyterm.Options{})
 
 	type update struct {
 		Index  int
-		Result testResult
+		Result test.Result
 	}
 	updates := make(chan update, len(testCases))
+	sem := make(chan bool, config.MaxJobs)
 
 	for i := range testCases {
 		row := i
@@ -55,7 +55,7 @@ func Run(config Config) (int, error) {
 				term.Update(row, formatRun(tc.Name, elapsed, spin))
 				spin++
 			})
-			r, _ := test(config.Command, tc)
+			r, _ := tc.Run(config.Command)
 			p.Stop()
 
 			elapsed := time.Now().Sub(start)
@@ -68,11 +68,11 @@ func Run(config Config) (int, error) {
 
 	// This loop blocks until all the tests finish.
 	failed := false
-	results := make([]testResult, len(testCases))
+	results := make([]test.Result, len(testCases))
 	for i := 0; i < len(testCases); i++ {
 		up := <-updates
 		results[up.Index] = up.Result
-		if up.Result.Outcome != testPassed {
+		if up.Result.Outcome != test.TestPassed {
 			failed = true
 		}
 	}
@@ -83,7 +83,7 @@ func Run(config Config) (int, error) {
 		for i := 0; i < len(testCases); i++ {
 			tc := testCases[i]
 			r := results[i]
-			if r.Outcome == testPassed {
+			if r.Outcome == test.TestPassed {
 				continue
 			}
 			fmt.Print("\n")
