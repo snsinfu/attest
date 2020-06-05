@@ -11,22 +11,21 @@ func TestCmd_cat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
-	defer cat.Close()
 
 	sequence := []byte{
 		109, 112, 199, 223, 57, 115, 237, 11, 168, 210,
 		219, 63, 249, 235, 19, 164, 157, 153, 5, 104,
 	}
 
-	if _, err := cat.Write(sequence); err != nil {
+	if _, err := cat.Stdin.Write(sequence); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	if err := cat.WriteEnd(); err != nil {
+	if err := cat.Stdin.Close(); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	output, err := ioutil.ReadAll(cat)
+	output, err := ioutil.ReadAll(cat.Stdout)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}

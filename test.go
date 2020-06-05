@@ -35,10 +35,9 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 	if err != nil {
 		return testError, err
 	}
-	defer cmd.Close()
 
-	cmd.Write([]byte(tcase.Input))
-	cmd.WriteEnd()
+	cmd.Stdin.Write([]byte(tcase.Input))
+	cmd.Stdin.Close()
 
 	// We have feeded the input to the command. The command process should be
 	// computing result now and reading stdout would block. So, handle timeout
@@ -56,7 +55,7 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 		defer timer.Stop()
 	}
 
-	stdout, err := ioutil.ReadAll(cmd)
+	stdout, err := ioutil.ReadAll(cmd.Stdout)
 	if err != nil {
 		return testError, err
 	}
