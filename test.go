@@ -18,22 +18,31 @@ type testCase struct {
 	Timeout time.Duration
 }
 
-type testStatus int
+const caseDelim = "\n---\n"
+
+type testOutcome int
 
 const (
-	testPassed testStatus = iota
+	testPassed testOutcome = iota
 	testFailed
 	testTimeout
 	testError
 )
 
-const caseDelim = "\n---\n"
+type testResult struct {
+	Outcome testOutcome
+	Stdout  string
+	Stderr  string
+}
 
 // test runs a command and test its behavior against given test case.
-func test(argv []string, tcase testCase) (testStatus, error) {
+func test(argv []string, tcase testCase) (testResult, error) {
+	var r testResult
+
 	cmd, err := command.Run(argv)
 	if err != nil {
-		return testError, err
+		r.Outcome = testError
+		return r, err
 	}
 
 	cmd.Stdin.Write([]byte(tcase.Input))
@@ -57,17 +66,29 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 
 	stdout, err := ioutil.ReadAll(cmd.Stdout)
 	if err != nil {
-		return testError, err
+		r.Outcome = testError
+		return r, err
 	}
+
+	stderr, err := ioutil.ReadAll(cmd.Stderr)
+	if err != nil {
+		r.Outcome = testError
+		return r, err
+	}
+
+	r.Stdout = string(stdout)
+	r.Stderr = string(stderr)
 
 	// Check exit status. Note that failed command is not our fault. It is a
 	// valid observation of testError.
 	if err := cmd.Wait(); err != nil {
 		select {
 		case <-timedOut:
-			return testTimeout, nil
+			r.Outcome = testTimeout
+			return r, nil
 		default:
-			return testError, nil
+			r.Outcome = testError
+			return r, nil
 		}
 	}
 
@@ -78,16 +99,19 @@ func test(argv []string, tcase testCase) (testStatus, error) {
 	expected := strings.Fields(tcase.Output)
 
 	if len(observed) != len(expected) {
-		return testFailed, nil
+		r.Outcome = testFailed
+		return r, nil
 	}
 
 	for i := 0; i < len(observed); i++ {
 		if observed[i] != expected[i] {
-			return testFailed, nil
+			r.Outcome = testFailed
+			return r, nil
 		}
 	}
 
-	return 0, nil
+	r.Outcome = testPassed
+	return r, nil
 }
 
 // makeTestCases interprets config and assembles test case objects.

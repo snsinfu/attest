@@ -1,7 +1,7 @@
 package attest
 
 import (
-	"sync"
+	"fmt"
 	"time"
 
 	"github.com/snsinfu/attest/flyterm"
@@ -28,11 +28,14 @@ func Run(config Config) (int, error) {
 	}
 
 	sem := make(chan bool, config.MaxJobs)
-	wg := sync.WaitGroup{}
-	wg.Add(len(testCases))
 
 	term := flyterm.New(len(testCases), flyterm.Options{})
-	defer term.Stop()
+
+	type update struct {
+		Index  int
+		Result testResult
+	}
+	updates := make(chan update, len(testCases))
 
 	for i := range testCases {
 		row := i
@@ -51,18 +54,37 @@ func Run(config Config) (int, error) {
 				term.Update(row, formatRun(tc.Name, elapsed, spin))
 				spin++
 			})
-			stat, _ := test(config.Command, tc)
+			r, _ := test(config.Command, tc)
 			p.Stop()
 
 			elapsed := time.Now().Sub(start)
-			term.Update(row, formatResult(tc.Name, elapsed, stat))
+			term.Update(row, formatOutcome(tc.Name, elapsed, r.Outcome))
 
 			<-sem
-			wg.Done()
+			updates <- update{row, r}
 		}()
 	}
 
-	wg.Wait()
+	// This loop blocks until all the tests finish.
+	results := make([]testResult, len(testCases))
+	for i := 0; i < len(testCases); i++ {
+		up := <-updates
+		results[up.Index] = up.Result
+	}
+
+	term.Stop()
+
+	if config.Verbose {
+		for i := 0; i < len(testCases); i++ {
+			tc := testCases[i]
+			r := results[i]
+			if r.Outcome == testPassed {
+				continue
+			}
+			fmt.Print("\n")
+			fmt.Print(formatResult(tc, r))
+		}
+	}
 
 	return 0, nil
 }
