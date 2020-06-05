@@ -66,10 +66,14 @@ func Run(config Config) (int, error) {
 	}
 
 	// This loop blocks until all the tests finish.
+	failed := false
 	results := make([]testResult, len(testCases))
 	for i := 0; i < len(testCases); i++ {
 		up := <-updates
 		results[up.Index] = up.Result
+		if up.Result.Outcome != testPassed {
+			failed = true
+		}
 	}
 
 	term.Stop()
@@ -86,5 +90,8 @@ func Run(config Config) (int, error) {
 		}
 	}
 
+	if failed {
+		return 1, nil
+	}
 	return 0, nil
 }
