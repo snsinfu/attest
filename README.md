@@ -54,15 +54,36 @@ PASS  0:05  test2.txt
 PASS  0:03  test3.txt
 ```
 
-Each line shows test result, execution time and test filename. The test result
-can be one of these:
+Each line shows test outcome, execution time and test filename. The test
+outcome is one of these:
 
-| Result | Meaning                      |
-|--------|------------------------------|
-| PASS   | Program output was correct   |
-| FAIL   | Program output was incorrect |
-| TIME   | Program took too long        |
-| DEAD   | Program crashed              |
+| Outcome | Meaning                      |
+|---------|------------------------------|
+| PASS    | Program output was correct   |
+| FAIL    | Program output was incorrect |
+| TIME    | Program took too long        |
+| DEAD    | Program crashed              |
+
+Pass `-v` option to inspect the output of failed tests.
+
+```console
+$ attest -v ./a.out
+PASS  0:01  test1.txt
+FAIL  0:00  test2.txt
+
+FAIL  test2.txt
+  Test case
+    IN:
+    3
+    1 2 3
+    4 5 6
+    7 8 0
+    OUT:
+    9
+  Program output
+    OUT:
+    0
+```
 
 
 ## Options
@@ -74,7 +95,7 @@ options:
   -d <tests>    Directory containing test files [default: tests]
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
-  -v            Display more information
+  -v            Display detailed information on failed tests
   -h            Show this message and exit
 ```
 
