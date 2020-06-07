@@ -19,8 +19,7 @@ type Config struct {
 	Verbose   bool
 }
 
-// Run runs command and tests its output against expected outcomes recorded in
-// test files.
+// Run runs command and tests its output against expected one.
 func Run(config Config) (int, error) {
 	testCount := len(config.TestCases)
 	term := flyterm.New(testCount, flyterm.Options{})

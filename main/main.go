@@ -68,7 +68,7 @@ func run() error {
 	}
 
 	// Set rounded floating-point comparison mode.
-	digits := -1
+	digits := 0
 	if opt, ok := opts["-f"]; ok && opt != nil {
 		digits, err = opts.Int("-f")
 		if err != nil {

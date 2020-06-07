@@ -7,8 +7,8 @@ type Periodic struct {
 	quit chan bool
 }
 
-// NewPeriodic starts a goroutine periodically calls f. The periodic call is
-// stopped by calling Stop() on the returned Periodic object.
+// New starts a goroutine periodically calls f. The periodic call is stopped by
+// calling Stop() on the returned Periodic object.
 func New(d time.Duration, f func()) *Periodic {
 	quit := make(chan bool)
 	go func() {

@@ -6,8 +6,8 @@ import (
 	"os/exec"
 )
 
-// A Cmd is a running process where stdin and stdout are accessible as
-// Writer and Reader interfaces.
+// A Cmd is a running process where stdin, stdout and stderr are piped as Writer
+// and Reader instances.
 type Cmd struct {
 	Stdin  io.WriteCloser
 	Stdout io.ReadCloser
