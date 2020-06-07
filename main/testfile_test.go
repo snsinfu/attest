@@ -26,3 +26,22 @@ func TestParseTestCase_acceptsEmptyInputOutput(t *testing.T) {
 		t.Errorf("output is nonempty: %q", output)
 	}
 }
+
+func TestParseTestCase_parsesInputOutput(t *testing.T) {
+	expectedInput := "1 2 3\n4 5 6\n"
+	expectedOutput := "a b c\nd e f\n"
+	doc := expectedInput + "---\n" + expectedOutput
+
+	input, output, ok := parseTestCase(doc)
+	if !ok {
+		t.Fatal("incorrectly rejects a document")
+	}
+
+	if input != expectedInput {
+		t.Errorf("input: actual %q expect %q", input, expectedInput)
+	}
+
+	if output != expectedOutput {
+		t.Errorf("input: actual %q expect %q", output, expectedOutput)
+	}
+}
