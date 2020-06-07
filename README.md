@@ -1,4 +1,4 @@
-# attest: Local test tool for competitive coder
+# attest: Local test tool for competitive programming
 
 [![Release][release-badge]][release-url]
 [![Build Status][travis-badge]][travis-url]
@@ -24,8 +24,9 @@ solving competitive programming problems.
 
 ## Install
 
-Download `attest` binary from the [release page][release-url]. Pre-compiled
-static executables are listed in the **Assets** box.
+Download `attest` binary from the [release page][release-url]. Copy it to your
+`~/bin` directory. Pre-compiled static executables are listed in the **Assets**
+box.
 
 
 ## Usage
