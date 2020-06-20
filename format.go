@@ -62,7 +62,7 @@ func formatResult(tc test.Case, r test.Result) string {
 	tcSection += endLine(tc.Input)
 	tcSection += colors.Gray("OUT:") + "\n"
 	tcSection += endLine(tc.Output)
-	tcSection = colors.Gray("Test case") + "\n" + indent(tcSection, 2)
+	tcSection = colors.Cyan("Test case") + "\n" + indent(tcSection, 2)
 
 	rSection := colors.Gray("OUT:") + "\n"
 	rSection += endLine(r.Stdout)
@@ -70,7 +70,7 @@ func formatResult(tc test.Case, r test.Result) string {
 		rSection += colors.Gray("LOG:") + "\n"
 		rSection += endLine(r.Stderr)
 	}
-	rSection = colors.Gray("Program output") + "\n" + indent(rSection, 2)
+	rSection = colors.Cyan("Program") + "\n" + indent(rSection, 2)
 
 	return heading + indent(tcSection, 2) + indent(rSection, 2)
 }

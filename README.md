@@ -82,7 +82,7 @@ FAIL  test2.txt
     7 8 0
     OUT:
     9
-  Program output
+  Program
     OUT:
     0
 ```
@@ -136,7 +136,7 @@ FAIL  test3.txt
     -100
     OUT:
     200
-  Program output
+  Program
     OUT:
     -200
 make: *** [Makefile:5: test] Error 1
