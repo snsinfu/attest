@@ -24,9 +24,9 @@ solving competitive programming problems.
 
 ## Install
 
-Download `attest` binary from the [release page][release-url]. Copy it to your
-`~/bin` directory. Pre-compiled static executables are listed in the **Assets**
-box.
+Pre-compiled static executables are listed in the **Assets** box in the
+[release page][release-url]. Download one for your platform and put it into
+your ~/bin directory as `attest`.
 
 
 ## Usage
@@ -38,7 +38,7 @@ program input and expected output delimited by "---".
 $ ls tests
 test1.txt  test2.txt  test3.txt
 
-$ cat test1.txt
+$ cat tests/test1.txt
 2
 0 1
 1 0
@@ -104,7 +104,7 @@ options:
 
 ## Testing
 
-Requires Go 1.13.
+Requires Go 1.13 and POSIX commands.
 
 ```
 git clone https://github.com/snsinfu/attest
