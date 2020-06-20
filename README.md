@@ -17,6 +17,7 @@ solving competitive programming problems.
 
 - [Install](#install)
 - [Usage](#usage)
+- [Makefile automation](#makefile-automation)
 - [Options](#options)
 - [Testing](#testing)
 - [License](#license)
@@ -85,6 +86,64 @@ FAIL  test2.txt
     OUT:
     0
 ```
+
+
+## Makefile automation
+
+You may want to use Makefile to automate compilation and testing. Suppose you
+have source file `main.c` and test files in `test` directory:
+
+```console
+$ ls *
+main.c
+
+tests:
+test1.txt  test2.txt  test3.txt
+```
+
+Create this Makefile:
+
+```make
+CFLAGS = -std=gnu99 -O2 -g
+
+.PHONY: test clean
+test: main
+	attest -v ./main
+clean:
+	rm -f main
+```
+
+`CFLAGS` (`CXXFLAGS` if you use C++) is optional but useful to have. You may
+add extra compiler flags like `-I/usr/local/include` and `-fsanitize=address`.
+
+With this setup, you can compile the program and test it by simply typing `make`
+after making modifications to the source code.
+
+```console
+$ ls
+main.c  Makefile  tests
+
+$ make
+cc -std=gnu99 -O2    main.c   -o main
+attest -v ./main
+PASS  0:00  test1.txt
+PASS  0:00  test2.txt
+FAIL  0:00  test3.txt
+
+FAIL  test3.txt
+  Test case
+    IN:
+    -100
+    OUT:
+    200
+  Program output
+    OUT:
+    -200
+make: *** [Makefile:5: test] Error 1
+```
+
+Edit source code, type `make`, see test result, identify the issue and fix it.
+Repeat this to create a program that passes all tests.
 
 
 ## Options
