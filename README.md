@@ -66,7 +66,8 @@ outcome is one of these:
 | TIME    | Program took too long        |
 | DEAD    | Program crashed              |
 
-Pass `-v` option to inspect the output of failed tests.
+Pass `-v` option to inspect the output of failed tests. Specify `-vv` to show
+output of all tests.
 
 ```console
 $ attest -v ./a.out
@@ -149,14 +150,15 @@ Repeat this to create a program that passes all tests.
 ## Options
 
 ```
-usage: attest [options] <command>...
+usage: attest [-v ...] [options] <command>...
 
 options:
   -d <tests>    Directory containing test files [default: tests]
   -f <digits>   Test numbers for specified number of decimal places
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
-  -v            Display detailed information on failed tests
+  -v            Display detailed test results; -v for only failed tests and -vv
+                for all tests
   -h            Show this message and exit
 ```
 

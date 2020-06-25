@@ -12,14 +12,15 @@ import (
 )
 
 const usage = `
-usage: attest [options] <command>...
+usage: attest [-v ...] [options] <command>...
 
 options:
   -d <tests>    Directory containing test files [default: tests]
   -f <digits>   Test numbers for specified number of decimal places
   -j <jobs>     Number of concurrent runs; 0 means maximum [default: 0]
   -t <timeout>  Timeout in seconds; 0 means no timeout [default: 0]
-  -v            Display detailed information on failed tests
+  -v            Display detailed test results; -v for only failed tests and -vv
+                for all tests
   -h            Show this message and exit
 
 attest loads test files (*.txt) from test directory and examines command
@@ -97,10 +98,11 @@ func run() error {
 		return fmt.Errorf("timeout (-t) cannot be negative")
 	}
 
-	// Verbosity.
-	verbose, err := opts.Bool("-v")
-	if err != nil {
-		return err
+	// Get verbosity as the number of -v flags passed. docopt-go does not allow
+	// calling Int("-v") on counted flags so we resort to manual cast here.
+	verbose, ok := opts["-v"].(int)
+	if !ok {
+		return fmt.Errorf("failed to get -v option")
 	}
 
 	// Cook test cases.

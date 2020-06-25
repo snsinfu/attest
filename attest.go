@@ -16,7 +16,7 @@ type Config struct {
 	Command   []string
 	TestCases []test.Case
 	MaxJobs   int
-	Verbose   bool
+	Verbose   int
 }
 
 // Run runs command and tests its output against expected one.
@@ -73,15 +73,14 @@ func Run(config Config) (int, error) {
 
 	term.Stop()
 
-	if config.Verbose {
+	if config.Verbose > 0 {
 		for i := 0; i < testCount; i++ {
 			tc := config.TestCases[i]
 			r := results[i]
-			if r.Outcome == test.TestPassed {
-				continue
+			if r.Outcome != test.TestPassed || config.Verbose > 1 {
+				fmt.Print("\n")
+				fmt.Print(formatResult(tc, r))
 			}
-			fmt.Print("\n")
-			fmt.Print(formatResult(tc, r))
 		}
 	}
 
